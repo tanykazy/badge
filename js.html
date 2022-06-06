@@ -1,0 +1,129 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script>
+  var canvas = document.getElementById("canvas");
+  var context = canvas.getContext('2d');
+  var x, y, relX, relY, objX, objY;
+  var objWidth, objHeight;
+  var dragging = false;
+
+  const app = new Vue({
+    el: '#app',
+    vuetify: new Vuetify(),
+    data() {
+      return {
+        canvas: null,
+        context: null,
+        step: 1,
+        baseimage: null,
+        baseimageurl: '',
+        badgeimage: null,
+        url: '',
+      };
+    },
+    watch: {
+      baseimage: function (val, old) {
+        console.log('baseimageurl:', old, '->', val);
+        window.URL.revokeObjectURL(old);
+        if (val) {
+          this.baseimageurl = window.URL.createObjectURL(val);
+        } else {
+          this.baseimageurl = '';
+        }
+      },
+    },
+    mounted() {
+      this.canvas = document.getElementById("canvas");
+      this.context = this.canvas.getContext('2d');
+      this.context.fillStyle = 'green';
+      this.context.fillRect(10, 10, 100, 100);
+
+      this.canvas.addEventListener('mousedown', this.onDown, false);
+      this.canvas.addEventListener('mousemove', this.onMove, false);
+      this.canvas.addEventListener('mouseup', this.onUp, false);
+
+      objWidth = 50;
+      objHeight = 50;
+      objX = this.canvas.width / 2 - objWidth / 2;
+      objY = this.canvas.height / 2 - objHeight / 2;
+
+      this.drawRect();
+    },
+    async created() {
+      // const url = await googleScriptRun('getPhotoUrl');
+      // console.log(url);
+      // this.url = url;
+    },
+    methods: {
+      onChangeBaseImage(event) {
+        console.log(event);
+        // window.URL.revokeObjectURL(this.baseimage);
+        // this.baseimage = window.URL.createObjectURL(event);
+        this.badgeimage;
+      },
+      onChangeInputFile(event) {
+        loadImage(event, (img) => {
+          this.context.drawImage(img, 20, 20);
+        });
+        // console.log(event);
+        // console.log(this.baseimage);
+      },
+      onDown(e) {
+        var offsetX = this.canvas.getBoundingClientRect().left;
+        var offsetY = this.canvas.getBoundingClientRect().top;
+
+        x = e.clientX - offsetX;
+        y = e.clientY - offsetY;
+
+        if (objX < x && (objX + objWidth) > x && objY < y && (objY + objHeight) > y) {
+          dragging = true;
+          relX = objX - x;
+          relY = objY - y;
+        }
+      },
+      onMove(e) {
+        var offsetX = this.canvas.getBoundingClientRect().left;
+        var offsetY = this.canvas.getBoundingClientRect().top;
+
+        x = e.clientX - offsetX;
+        y = e.clientY - offsetY;
+
+        if (dragging) {
+          objX = x + relX;
+          objY = y + relY;
+          this.drawRect();
+        }
+      },
+      onUp(e) {
+        dragging = false;
+
+        console.log(this.baseimage);
+      },
+      drawRect() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.fillRect(objX, objY, objWidth, objHeight);
+      },
+    },
+  });
+
+  function loadImage(file, callback) {
+    var image = document.createElement('img');
+    image.onload = function (event) {
+      callback(this);
+      window.URL.revokeObjectURL(this.src);
+    };
+    image.src = window.URL.createObjectURL(file);
+    return image;
+  }
+
+  async function googleScriptRun(name, ...args) {
+    return new Promise(function (resolve, reject) {
+      google.script.run
+        .withSuccessHandler(function (...e) {
+          resolve(...e);
+        }).withFailureHandler(function (...e) {
+          reject(...e);
+        })[name](...args);
+    });
+  }
+</script>

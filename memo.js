@@ -1,0 +1,4 @@
+"BaseImage"
+"IconCircle"
+"BadgeImage"
+"BadgedIcon"

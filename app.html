@@ -1,0 +1,99 @@
+<div id="app">
+  <v-app>
+    <v-app-bar app absolute color="primary">
+      <v-toolbar-title>Badge</v-toolbar-title>
+    </v-app-bar>
+
+    <v-main>
+      <v-container>
+
+        <v-stepper v-model="step" vertical>
+          <v-stepper-step :complete="step > 1" step="1" editable>
+            Select an app
+            <small>Summarize if needed</small>
+          </v-stepper-step>
+
+          <v-stepper-content step="1">
+            <v-card>
+              <v-img v-show="baseimage" :src="baseimageurl"></v-img>
+              <v-card-actions>
+                <v-file-input chips accept="image/*" v-model="baseimage" label="File input" prepend-icon="image"
+                  @change="onChangeBaseImage($event)">
+                </v-file-input>
+              </v-card-actions>
+            </v-card>
+          </v-stepper-content>
+
+          <v-stepper-step :complete="step > 2" step="2" editable>
+            Configure analytics for this app
+          </v-stepper-step>
+
+          <v-stepper-content step="2">
+            <v-file-input chips accept="image/*" label="File input" prepend-icon="image"
+              @change="onChangeInputFile($event)">
+            </v-file-input>
+            <!-- <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
+            <v-btn color="primary" @click="step = 3">
+              Continue
+            </v-btn>
+            <v-btn text>
+              Cancel
+            </v-btn> -->
+          </v-stepper-content>
+
+          <v-stepper-step :complete="step > 3" step="3">
+            Select an ad format and name ad unit
+          </v-stepper-step>
+
+          <v-stepper-content step="3">
+            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
+            <v-btn color="primary" @click="step = 4">
+              Continue
+            </v-btn>
+            <v-btn text>
+              Cancel
+            </v-btn>
+          </v-stepper-content>
+
+          <v-stepper-step step="4">
+            View setup instructions
+          </v-stepper-step>
+          <v-stepper-content step="4">
+            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
+            <v-btn color="primary" @click="step = 1">
+              Continue
+            </v-btn>
+            <v-btn text>
+              Cancel
+            </v-btn>
+          </v-stepper-content>
+        </v-stepper>
+
+        <v-row>
+          <v-col>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <canvas id="canvas" width="640" height="480"></canvas>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <v-btn icon>
+              <v-icon>download</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+
+      </v-container>
+    </v-main>
+
+    <v-footer app fixed color="primary">
+      <v-col cols="12">
+      </v-col>
+    </v-footer>
+  </v-app>
+</div>
