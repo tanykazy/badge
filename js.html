@@ -1,8 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
 <script>
-  var canvas = document.getElementById("canvas");
-  var context = canvas.getContext('2d');
   var x, y, relX, relY, objX, objY;
   var objWidth, objHeight;
   var dragging = false;
@@ -18,36 +16,42 @@
         baseimage: null,
         baseimageurl: '',
         badgeimage: null,
+        badgeimageurl: '',
         url: '',
       };
     },
     watch: {
       baseimage: function (val, old) {
         console.log('baseimageurl:', old, '->', val);
-        window.URL.revokeObjectURL(old);
+        window.URL.revokeObjectURL(this.baseimageurl);
         if (val) {
           this.baseimageurl = window.URL.createObjectURL(val);
         } else {
           this.baseimageurl = '';
         }
       },
+      badgeimage: function (val, old) {
+        console.log('badgeimageurl:', old, '->', val);
+        window.URL.revokeObjectURL(this.badgeimageurl);
+        if (val) {
+          this.badgeimageurl = window.URL.createObjectURL(val);
+        } else {
+          this.badgeimageurl = '';
+        }
+      },
     },
     mounted() {
-      this.canvas = document.getElementById("canvas");
+      this.canvas = this.$refs.canvas;
       this.context = this.canvas.getContext('2d');
-      this.context.fillStyle = 'green';
-      this.context.fillRect(10, 10, 100, 100);
 
-      this.canvas.addEventListener('mousedown', this.onDown, false);
-      this.canvas.addEventListener('mousemove', this.onMove, false);
-      this.canvas.addEventListener('mouseup', this.onUp, false);
+      // this.canvas.addEventListener('mousedown', this.onDown, false);
+      // this.canvas.addEventListener('mousemove', this.onMove, false);
+      // this.canvas.addEventListener('mouseup', this.onUp, false);
 
-      objWidth = 50;
-      objHeight = 50;
-      objX = this.canvas.width / 2 - objWidth / 2;
-      objY = this.canvas.height / 2 - objHeight / 2;
-
-      this.drawRect();
+      // objWidth = 50;
+      // objHeight = 50;
+      // objX = this.canvas.width / 2 - objWidth / 2;
+      // objY = this.canvas.height / 2 - objHeight / 2;
     },
     async created() {
       // const url = await googleScriptRun('getPhotoUrl');
@@ -55,18 +59,16 @@
       // this.url = url;
     },
     methods: {
-      onChangeBaseImage(event) {
+      onClickStep3(event) {
         console.log(event);
-        // window.URL.revokeObjectURL(this.baseimage);
-        // this.baseimage = window.URL.createObjectURL(event);
-        this.badgeimage;
-      },
-      onChangeInputFile(event) {
-        loadImage(event, (img) => {
-          this.context.drawImage(img, 20, 20);
+        console.log(this.$refs.canvas);
+        console.log(this.baseimage);
+        loadImage(this.baseimage, (img) => {
+          this.context.drawImage(img, 0, 0);
         });
-        // console.log(event);
-        // console.log(this.baseimage);
+        loadImage(this.badgeimage, (img) => {
+          this.context.drawImage(img, 256, 256);
+        });
       },
       onDown(e) {
         var offsetX = this.canvas.getBoundingClientRect().left;
@@ -97,7 +99,7 @@
       onUp(e) {
         dragging = false;
 
-        console.log(this.baseimage);
+        console.log(this.$refs.canvas);
       },
       drawRect() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -107,21 +109,25 @@
   });
 
   function loadImage(file, callback) {
-    var image = document.createElement('img');
+    const image = document.createElement('img');
+    image.src = window.URL.createObjectURL(file);
     image.onload = function (event) {
       callback(this);
       window.URL.revokeObjectURL(this.src);
     };
-    image.src = window.URL.createObjectURL(file);
+    image.file = file;
     return image;
   }
 
   async function googleScriptRun(name, ...args) {
     return new Promise(function (resolve, reject) {
+      console.log(`Executes the server-side Apps Script function "${name}"`, args);
       google.script.run
         .withSuccessHandler(function (...e) {
+          console.log(`The server-side function "${name}" returns successfully.`, e);
           resolve(...e);
         }).withFailureHandler(function (...e) {
+          console.log(`The server-side function "${name}" throws an exception.`, e);
           reject(...e);
         })[name](...args);
     });
